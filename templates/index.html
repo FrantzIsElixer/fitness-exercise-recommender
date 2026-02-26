@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fitness Recommendation System</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        input {
+            padding: 10px;
+            width: 220px;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .results {
+            margin-top: 30px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: white;
+            margin: 5px auto;
+            padding: 8px;
+            width: 300px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fitness Exercise Recommender</h1>
+
+        <input type="text" id="goalInput" placeholder="Enter body part (e.g. quads)">
+        <button onclick="getRecommendation()">Get Recommendation</button>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        function getRecommendation() {
+            const goal = document.getElementById("goalInput").value;
+
+            fetch(`/recommend?goal=${goal}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById("results").innerHTML =
+                            `<p style="color:red">${data.error}</p>`;
+                        return;
+                    }
+
+                    document.getElementById("results").innerHTML = `
+                        <h2>Best Exercise: ${data.recommended_exercise}</h2>
+                        <p>Rating: ${data.rating}/10</p>
+                        <p>Total Found: ${data.total_exercises_found}</p>
+                        <h3>Other Exercises:</h3>
+                        <ul>
+                            ${data.exercise_list.map(ex => `<li>${ex}</li>`).join("")}
+                        </ul>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
