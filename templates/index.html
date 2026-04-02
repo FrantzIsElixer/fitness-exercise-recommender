@@ -1,72 +1,288 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Recommendation System</title>
     <style>
+        :root {
+            --bg-start: #f4efe6;
+            --bg-end: #dce9e2;
+            --panel: rgba(255, 255, 255, 0.92);
+            --panel-border: rgba(31, 61, 50, 0.12);
+            --text-main: #173126;
+            --text-soft: #587065;
+            --accent: #2f7d5b;
+            --accent-dark: #1f5c42;
+            --accent-light: #e7f5ee;
+            --star: #f2b544;
+            --error: #b84242;
+            --shadow: 0 24px 60px rgba(29, 60, 49, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial;
-            text-align: center;
-            background-color: #f4f4f4;
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 32%),
+                linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 18px;
         }
+
         .container {
-            margin-top: 50px;
+            width: min(760px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 32px;
+            backdrop-filter: blur(10px);
         }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.05;
+        }
+
+        .subtitle {
+            margin: 14px 0 28px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-soft);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         input {
-            padding: 10px;
-            width: 220px;
+            flex: 1 1 280px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(31, 61, 50, 0.15);
+            font-size: 1rem;
+            background: #fff;
+            color: var(--text-main);
         }
+
+        input:focus {
+            outline: 2px solid rgba(47, 125, 91, 0.18);
+            border-color: var(--accent);
+        }
+
         button {
-            padding: 10px 15px;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            box-shadow: 0 10px 20px rgba(47, 125, 91, 0.22);
         }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .hint-list {
+            margin: 18px 0 0;
+            color: var(--text-soft);
+            font-size: 0.95rem;
+        }
+
         .results {
-            margin-top: 30px;
+            margin-top: 28px;
         }
-        ul {
-            list-style-type: none;
+
+        .message,
+        .summary,
+        .exercise-card {
+            border-radius: 18px;
+        }
+
+        .message {
+            padding: 14px 16px;
+            background: #fff6f6;
+            border: 1px solid rgba(184, 66, 66, 0.16);
+            color: var(--error);
+        }
+
+        .summary {
+            padding: 18px 20px;
+            background: var(--accent-light);
+            border: 1px solid rgba(47, 125, 91, 0.12);
+            margin-bottom: 16px;
+        }
+
+        .summary h2,
+        .summary p {
+            margin: 0;
+        }
+
+        .summary p {
+            margin-top: 8px;
+            color: var(--text-soft);
+        }
+
+        .exercise-list {
+            list-style: none;
+            margin: 0;
             padding: 0;
+            display: grid;
+            gap: 14px;
         }
-        li {
-            background: white;
-            margin: 5px auto;
-            padding: 8px;
-            width: 300px;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+
+        .exercise-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 18px;
+            background: #fff;
+            border: 1px solid rgba(31, 61, 50, 0.08);
+            box-shadow: 0 12px 24px rgba(28, 48, 40, 0.06);
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .stars {
+            white-space: nowrap;
+            color: var(--star);
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px 18px;
+            }
+
+            .exercise-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            button,
+            input {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Fitness Exercise Recommender</h1>
+        <p class="eyebrow">Workout Finder</p>
+        <h1>Find top exercises by muscle group</h1>
+        <p class="subtitle">
+            Type a body part like <strong>chest</strong>, <strong>legs</strong>, <strong>abs</strong>,
+            or <strong>lower back</strong> to see recommended exercises and a 1 to 5 star rating.
+        </p>
 
-        <input type="text" id="goalInput" placeholder="Enter body part (e.g. quads)">
-        <button onclick="getRecommendation()">Get Recommendation</button>
+        <div class="search-row">
+            <input
+                type="text"
+                id="goalInput"
+                placeholder="Enter a muscle group or body part"
+                onkeydown="handleKeyPress(event)"
+            >
+            <button onclick="getRecommendation()">Show Exercises</button>
+        </div>
+
+        <p class="hint-list">Popular searches: chest, back, shoulders, arms, quads, glutes, abs, full body</p>
 
         <div class="results" id="results"></div>
     </div>
 
     <script>
-        function getRecommendation() {
-            const goal = document.getElementById("goalInput").value;
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                getRecommendation();
+            }
+        }
 
-            fetch(`/recommend?goal=${goal}`)
+        function renderExercises(exercises) {
+            return `
+                <ul class="exercise-list">
+                    ${exercises.map(exercise => `
+                        <li class="exercise-card">
+                            <span class="exercise-name">${exercise.name}</span>
+                            <span class="stars" aria-label="${exercise.rating} out of 5 stars">
+                                ${exercise.stars} (${exercise.rating}/5)
+                            </span>
+                        </li>
+                    `).join("")}
+                </ul>
+            `;
+        }
+
+        function getRecommendation() {
+            const goal = document.getElementById("goalInput").value.trim();
+            const results = document.getElementById("results");
+
+            if (!goal) {
+                results.innerHTML = `<div class="message">Please enter a muscle group or body part.</div>`;
+                return;
+            }
+
+            results.innerHTML = `<div class="summary"><h2>Searching...</h2><p>Finding the best exercise matches for ${goal}.</p></div>`;
+
+            fetch(`/recommend?goal=${encodeURIComponent(goal)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        document.getElementById("results").innerHTML =
-                            `<p style="color:red">${data.error}</p>`;
+                        const supported = data.supported_groups
+                            ? `<p>Try: ${data.supported_groups.join(", ")}</p>`
+                            : "";
+
+                        results.innerHTML = `
+                            <div class="message">
+                                <strong>${data.error}</strong>
+                                ${supported}
+                            </div>
+                        `;
                         return;
                     }
 
-                    document.getElementById("results").innerHTML = `
-                        <h2>Best Exercise: ${data.recommended_exercise}</h2>
-                        <p>Rating: ${data.rating}/10</p>
-                        <p>Total Found: ${data.total_exercises_found}</p>
-                        <h3>Other Exercises:</h3>
-                        <ul>
-                            ${data.exercise_list.map(ex => `<li>${ex}</li>`).join("")}
-                        </ul>
+                    results.innerHTML = `
+                        <div class="summary">
+                            <h2>${data.matched_group.toUpperCase()}</h2>
+                            <p>Top match: <strong>${data.top_exercise.name}</strong> with ${data.top_exercise.stars}</p>
+                        </div>
+                        ${renderExercises(data.exercise_list)}
+                    `;
+                })
+                .catch(() => {
+                    results.innerHTML = `
+                        <div class="message">
+                            Something went wrong while loading exercises. Please try again.
+                        </div>
                     `;
                 });
         }
