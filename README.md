@@ -1,145 +1,189 @@
-# fitness-exercise-recommender
-Flask-based fitness exercise recommendation API
-Fitness Exercise Recommendation & Rating System
-Overview
+# Fitness Exercise Recommendation System
 
-This project is a small microservice-based application that recommends and rates gym exercises based on a user’s fitness goal. It consumes data from an external REST API and processes JSON data across services to return meaningful exercise recommendations.
+## Project Overview
 
-The project is inspired by a Solo Leveling–based fitness app concept, where users improve their stats by performing effective workouts.
+This project is a Flask-based web application and REST API that helps users find strong exercise recommendations for a selected muscle group or body part. A user enters an area such as `chest`, `legs`, `abs`, or `lower back`, and the system returns a list of recommended exercises along with a star rating from 1 to 5.
 
-Features
+The application uses an external REST API, ExerciseDB through RapidAPI, to retrieve exercise information. The returned data is processed and displayed in a simple, user-friendly interface designed to be easy to read and use.
 
-Fetches real exercise data from an external REST API
+## Purpose
 
-Processes and normalizes JSON responses
+The purpose of this project is to demonstrate:
 
-Rates exercises on a scale from 1–10
+- Building a Python web application with Flask
+- Consuming data from an external REST API
+- Processing JSON responses
+- Returning recommendation data through a custom API endpoint
+- Presenting results in a clean front-end interface
 
-Returns recommendations in JSON format
+## Features
 
-Simple REST endpoints using Flask
+- Search by muscle group or body part
+- Retrieve exercise data from ExerciseDB using REST API calls
+- Display a list of recommended exercises
+- Show a 1 to 5 star rating for each exercise
+- Handle invalid or unsupported user input
+- Provide a fallback list of exercises if the external API is unavailable
+- Simple and improved visual layout for readability
 
-Technologies Used
+## Technologies Used
 
-Python 3
+- Python 3
+- Flask
+- Requests
+- HTML, CSS, and JavaScript
+- ExerciseDB API via RapidAPI
 
-Flask
+## How the System Works
 
-Requests
+1. The user enters a muscle group or body part into the search box.
+2. The front end sends a request to the Flask route: `/recommend`.
+3. The Flask app calls the recommendation service.
+4. The recommendation service sends a request to the ExerciseDB REST API.
+5. The returned JSON data is processed and exercises are assigned star ratings.
+6. The top results are displayed on the page in a clean list format.
 
-ExerciseDB API (via RapidAPI)
+If the external API key is missing or the API cannot be reached, the app uses a built-in fallback exercise list so the program can still demonstrate its main functionality.
 
-External API
+## Project Structure
 
-ExerciseDB API (RapidAPI)
-Provides exercise information such as:
+```text
+COSC319/
+|-- app.py
+|-- recommendation_service.py
+|-- README.md
+|-- templates/
+|   `-- index.html
+```
 
-Exercise name
+## API Information
 
-Target muscle
+This project uses the following external API:
 
-Body part
+- ExerciseDB API on RapidAPI
 
-Required equipment
+Example API data may include:
 
-Example response:
+- Exercise name
+- Target muscle
+- Body part
+- Equipment used
 
-{
-  "name": "bench press",
-  "target": "pectorals",
-  "equipment": "barbell",
-  "bodyPart": "chest"
-}
+## Installation and Setup
 
-Project Structure
-fitness-api/
-│
-├── app.py
-├── requirements.txt
-└── README.md
+### 1. Install Required Packages
 
-Setup Instructions
-1. Install Dependencies
+Run the following command in the project folder:
+
+```bash
 python -m pip install flask requests
+```
 
-2. API Key Setup
+### 2. Set the API Key
 
-This project requires a RapidAPI key for the ExerciseDB API.
+This project requires a RapidAPI key for ExerciseDB.
 
-Do NOT hardcode your API key.
+Set the key as an environment variable instead of hardcoding it into the code.
 
-Set it as an environment variable:
+Windows PowerShell:
 
-Windows (PowerShell):
-
+```powershell
 setx RAPID_API_KEY "YOUR_API_KEY_HERE"
+```
 
+After setting the key, restart the terminal before running the app.
 
-macOS / Linux:
+### 3. Run the Application
 
-export RAPID_API_KEY="YOUR_API_KEY_HERE"
-
-
-Restart your terminal after setting the key.
-
-3. Run the Application
+```bash
 python app.py
+```
 
+The application will run locally at:
 
-The server will start at:
-
+```text
 http://127.0.0.1:5000
+```
 
-API Endpoints
-Home
+## Available Routes
+
+### Home Page
+
+```http
 GET /
+```
 
+Displays the main user interface.
 
-Response:
+### Recommendation Endpoint
 
+```http
+GET /recommend?goal=chest
+```
+
+Example JSON response:
+
+```json
 {
-  "message": "Fitness Exercise Recommendation API"
+  "goal": "chest",
+  "matched_group": "chest",
+  "top_exercise": {
+    "name": "Barbell Bench Press",
+    "rating": 5,
+    "stars": "★★★★★"
+  },
+  "exercise_list": [
+    {
+      "name": "Barbell Bench Press",
+      "rating": 5,
+      "stars": "★★★★★"
+    },
+    {
+      "name": "Incline Dumbbell Press",
+      "rating": 5,
+      "stars": "★★★★★"
+    }
+  ],
+  "total_exercises_found": 5
 }
+```
 
-Recommend Exercise
-GET /recommend?goal=pectorals
+## Rating Logic
 
+The application uses a simple rule-based rating system.
 
-Response:
+- Exercises that are commonly considered strong compound movements are given higher ratings.
+- Exercises that are effective assistance or isolation movements are given moderate ratings.
+- Ratings are displayed visually as 1 to 5 stars.
 
-{
-  "goal": "pectorals",
-  "recommended_exercise": "bench press",
-  "rating": 10
-}
+This approach is straightforward and easy to explain for a class project, while still producing useful exercise recommendations.
 
+## Error Handling
 
-⚠️ Note: The goal parameter must match valid target muscles used by the ExerciseDB API (e.g., pectorals, biceps, triceps).
+The application includes basic error handling for:
 
-Rating Logic
+- Missing input
+- Unsupported body parts or muscle groups
+- External API failure
+- Missing RapidAPI key
 
-The current implementation uses a simple rule-based approach:
+When the external API is unavailable, the app still works by using a built-in fallback dataset.
 
-Exercises directly targeting the selected muscle group receive the highest rating.
+## Limitations
 
-Future improvements may include difficulty level, equipment availability, and workout combinations.
+- The rating system is rule-based and not personalized
+- The application does not currently store user accounts or workout history
+- Results depend partly on the external API being available
+- Exercise recommendations are limited to a short list rather than full workout plans
 
-Limitations
+## Future Improvements
 
-Uses in-memory logic (no database yet)
+- Add exercise images and descriptions
+- Build full workout plans instead of single-category recommendations
+- Add filters for equipment, difficulty, or fitness level
+- Store user preferences in a database
+- Improve the recommendation logic with more detailed scoring
 
-Ratings are rule-based (not machine learning)
+## Conclusion
 
-Limited to individual exercise recommendations
-
-Future Enhancements
-
-Store user goals in a database
-
-Support multiple fitness goals
-
-Generate full workout plans
-
-Add a web-based UI
-
-Improve rating algorithm
+This project demonstrates how a web application can combine Flask, REST APIs, and front-end design to create a practical fitness recommendation tool. It shows the use of external data, server-side processing, JSON handling, and a simple interface that allows users to search for exercises by body part and receive readable, star-rated results.
